@@ -44,7 +44,13 @@ pip install "flet[all]"
 
 ```python
 
-# Fazer código com Professor
+import flet as ft
+
+def main(page: ft.page):
+    page.title = "Meu primeiro app flet"
+    page.add(ft.Text("Olá, mundo!!"))
+
+ft.run(main)
 
 
 ```
@@ -60,11 +66,43 @@ Crie um app que mostre, na janela, seu nome (texto grande) e uma frase curta sob
 **Solução:**
 
 ```python
+import flet as ft
 
+def main(page: ft.Page):
+    page.title = "Cartão de apresentação"
 
-# Fazer código com Professor
+    # Define o tamanho da tela
+    page.window.width = 320
+    page.window.height = 600
 
+    # Cor de fundo na tela
+    page.bgcolor = "#2B1B3D"
 
+    # Centralizar elementos
+    page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
+
+    # Padding
+    page.padding = ft.Padding(top=60, bottom=60, left=0, right=0)
+
+    # Criação dos elementos da página
+    page.add(
+        # Nome em destaque
+        ft.Text(
+            "Sabrina Carpenter",
+            size=28,
+            weight=ft.FontWeight.BOLD,
+            color="#FF6FB5",
+            text_align=ft.TextAlign.CENTER,
+        ),
+        ft.Text(
+            "Estudante de programação mobile",
+            size=14,
+            color="#D9C4E8",
+            text_align=ft.TextAlign.CENTER,
+        ),
+    )
+# Inicia a aplicação
+ft.run(main)
 
 ```
 
@@ -90,10 +128,62 @@ Propriedades comuns de `Container`: `width`, `height`, `padding`, `margin`, `bgc
 
 ```python
 
+import flet as ft
 
-# Fazer código com Professor
+def main(page: ft.Page):
+    # Título que aparece na barra da janela/aba
+    page.title = "Árvore de controles"
 
+    # Cor de fundo da página: verde-azulado escuro (teal)
+    page.bgcolor = "#16BA4A"
 
+    # Define o tamanho da tela
+    page.window.width = 320
+    page.window.height = 600
+
+    # Centraliza os controles no eixo horizontal da página
+    page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
+
+    # Padding vertical de 60px (topo e base)
+    page.padding = ft.Padding(top=60, bottom=60, left=0, right=0)
+
+    # Container principal que representa o "cartão" visual
+    cartao = ft.Container(
+        # Conteúdo do cartão organizado em coluna (um item embaixo do outro)
+        content=ft.Column(
+            horizontal_alignment=ft.CrossAxisAlignment.CENTER,  # centraliza o conteúdo dentro do cartão
+            controls=[
+                # Título do cartão: texto maior, negrito e cor de destaque
+                ft.Text(
+                    "Título do cartão",
+                    size=20,
+                    weight=ft.FontWeight.BOLD,
+                    color="#1FE0C4",
+                ),
+                # Texto descritivo (abaixo  do título)
+                ft.Text("Descrição do cartão", color="#CFEFE9"),
+
+                ft.Row(
+                    alignment=ft.MainAxisAlignment.CENTER,
+                    controls=[
+                        ft.ElevatedButton(
+                            "Ação 1",
+                            bgcolor="#1FE0C4",
+                            color="#0B3D3A",
+                        ), # Botão de destaque
+                        ft.OutlinedButton("Ação 2"), # Botão secundário
+                    ]
+                ),
+            ]
+        ),
+        padding=16, # Espaçamento interno entre o conteudo
+        bgcolor="#123C3C", # Cor de fundo ("Row" - Arranjo em linha)
+        border_radius=12, # Arredondamento de canto
+    )
+    # Adiciona o cartão à página
+    page.add(cartao)
+
+ft.run(main)
 
 ```
 
@@ -171,10 +261,65 @@ Usando `Row` com vários `Container` dentro (cada um representando um produto co
 
 ```python
 
+import flet as ft
 
-# Fazer código com Professor
+def card_produto(nome, preco):
+    return ft.Container(
+        width=140,
+        height=140,
+        padding=12,
+        bgcolor="#FFF3E0",  # cor de fundo do cartão (laranja bem clarinho)
+        border_radius=12,
+        content=ft.Column(
+            alignment=ft.MainAxisAlignment.CENTER,  # centraliza o conteúdo verticalmente dentro do cartão
+            horizontal_alignment=ft.CrossAxisAlignment.CENTER,  # centraliza horizontalmente também
+            controls=[
+                ft.Icon(ft.Icons.SHOPPING_BAG, size=32, color="#E65100"),  # ícone laranja escuro
+                ft.Text(nome, weight=ft.FontWeight.BOLD, color="#4E342E"),  # nome em marrom escuro
+                ft.Text(f"R$ {preco:.2f}", color="#6D4C41"),  # preço em marrom mais suave
+            ],
+        ),
+    )
 
+def main(page: ft.Page):
+    # Título que aparece na barra da janela/aba
+    page.title = "Prateleira"
 
+    # Cor de fundo da página inteira (roxo escuro em hex)
+    page.bgcolor = "#2E1A47"
+
+    # Centraliza os controles no eixo horizontal da página
+    page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
+
+    # Define o tamanho da tela
+    page.window.width = 320
+    page.window.height = 600
+
+    # Padding só no topo da página (60 pixels)
+    page.padding = ft.Padding(top=60, right=0, bottom=0, left=0)
+
+    # Lista de produtos: cada item é uma tupla (nome, preço)
+    produtos = [
+        ("Caneta", 3.5),
+        ("Caderno", 12.9),
+        ("Mochila", 89.9),
+        ("Estojo", 24.9),
+        ("Régua", 5.0),
+        ("Borracha", 2.5),
+    ]
+
+    page.add(
+        ft.Row(
+            scroll=ft.ScrollMode.AUTO,
+            #scroll=ft.ScrollMode.HIDDEN,  # permite rolar horizontalmente, mas esconde a barra de rolagem
+            alignment=ft.MainAxisAlignment.CENTER,  # centraliza os cartões na linha
+            # Gera um card_produto para cada item da lista de produtos
+            controls=[card_produto(nome, preco) for nome, preco in produtos],
+        )
+    )
+
+# Inicia a aplicação, chamando a função main() como ponto de entrada
+ft.run(main)
 
 ```
 
@@ -196,10 +341,76 @@ Todo controle interativo tem um `on_<evento>` — o mais comuns são `on_click` 
 
 ```python
 
+import flet as ft
 
-# Fazer código com Professor
+def main(page: ft.Page):
+    # Título que aparece na barra da janela/aba
+    page.title = "Formulário simples"
 
+    # Cor de fundo da página inteira: azul marinho escuro
+    page.bgcolor = "#EAF4F4"
 
+    # Padding vertical de 60px (topo e base)
+    page.padding = ft.Padding(top=60, bottom=60, left=0, right=0)
+
+    # Campo de texto para o nome
+    nome = ft.TextField(
+        label="Seu nome",
+        width=280,  # Largura do campo
+        color="#2D3142", # Cor do texto
+        # Cor do label ("Seu nome")
+        label_style=ft.TextStyle(color="#6B7B8C"),
+        border_color="#A9C5C6", # Cor da borda
+        # Cor quando campo em foco (Clicado ou ativado)
+        focused_border_color= "#5FA8A0",
+    )
+
+    # CheckBox de aceite dos termos
+    aceite = ft.Checkbox(
+        label="Aceito os termos",
+        check_color="#FFFFFF", # Cor do check (visto)
+        active_color="#5FA8A0", # Cor do check (quando marcado)
+        # Cor do label ("Aceito os termos")
+        label_style=ft.TextStyle(color="#2D3142"),
+    )
+
+    # Texto de resultado (Após enviar)
+    resultado = ft.Text(color="#3E7C7C")
+
+    def enviar(e):
+        # Função de envio dos dados com validações
+        if not nome.value:
+            nome.error_text = "Preencha seu nome"
+            page.update()
+            return
+        nome.error_text = None
+        resultado.value = f"Obrigado, {nome.value}!" if aceite.value else "Você precisa aceitar os termos."
+        page.update()
+
+    # Construção dos elementos
+    page.add(
+        ft.Column(
+            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+            controls=[
+                nome, # Campo nome
+                ft.Row(
+                    alignment=ft.MainAxisAlignment.CENTER,
+                    controls=[aceite], # CheckBox (Caixa para marcar ou não)
+                ),
+                # Botão "Enviar"
+                ft.ElevatedButton(
+                    "Enviar",
+                    on_click=enviar, # Ao clicar chama a função enviar
+                    bgcolor="#5FA8A0",
+                    color="#FFFFFF",
+                ),
+                # Exibição dos resultados
+                resultado,
+            ],
+        )
+    )
+
+ft.run(main)
 
 ```
 
@@ -270,10 +481,10 @@ def main(page: ft.Page):
     resumo = ft.Text(color="#B388EB")
 
     def cadastrar(e):
-        resumo.value = (
-            f"{nome.value} ({email.value}) — {estado.value or 'sem estado'} — "
-            f"novidades: {'sim' if novidades.value else 'não'}"
-        )
+        linha1= f"{nome.value} ({email.value})"
+        linha2= f"{estado.value or 'sem estado'}"
+        linha3 = f"novidades: {'sim' if novidades.value else 'não'}"
+        resumo.value = f"{linha1}\n{linha2}\n{linha3}"
         page.update()
 
     # Column explícita centralizando todos os controles, inclusive o checkbox
