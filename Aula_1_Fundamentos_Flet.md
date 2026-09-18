@@ -518,9 +518,74 @@ Um clássico para fixar `on_click` + `page.update()`: um `ft.Text` mostrando um 
 
 ```python
 
+import flet as ft
 
-# Fazer código com Professor
+def main(page: ft.Page):
+    # Título que aparece na barra da janela/aba
+    page.title = "Contador"
 
+    # Cor de fundo da página
+    page.bgcolor = "#3D0E0E"
+
+    # Define o tamanho da tela
+    page.window.width = 320
+    page.window.height = 600
+
+    # Centraliza os controles no eixo horizontal da página
+    page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
+
+    # Padding vertical de 60px (topo e base)
+    page.padding = ft.Padding(top=60, bottom=60, left=0, right=0)
+
+    # Texto que exibe o valor atual do contador
+    contador = ft.Text("0", size=40, color="#FF6B6B", weight=ft.FontWeight.BOLD)
+
+    # Variável para guardar a contagem
+    valor = 0
+
+    # Funcionalidades 
+    def somar(e):
+        # Usamos "nonlocal" para dizer ao Python: quero alterar o valor da variável "valor" que foi criada na função "main" sem ter que criar uma nova variável
+        nonlocal valor
+        valor += 1 # Atualização do contador (Mesmo que:"valor= valor + 1" )
+        contador.value = str(valor)
+        page.update()
+
+    def subtrair(e):
+        nonlocal valor
+        valor -= 1 # Atualização do contador (Mesmo que:"valor= valor - 1" )
+        contador.value = str(valor)
+        page.update()
+
+    def resetar(e):
+        nonlocal valor
+        valor = 0 # Zera a variável
+        contador.value = str(valor)
+        page.update()
+
+    # Montagem da página do app
+    page.add(
+        ft.Row(
+            alignment=ft.MainAxisAlignment.CENTER,
+            controls=[
+                ft.IconButton(ft.Icons.REMOVE, on_click=subtrair, icon_color="#FF6B6B"),contador,
+                ft.IconButton(ft.Icons.ADD, on_click=somar, icon_color="#FF6B6B"),
+            ],
+        ),
+        ft.Row(
+            alignment=ft.MainAxisAlignment.CENTER,
+            controls=[
+                ft.TextButton(
+                    "Resetar",
+                    icon=ft.Icons.RESTART_ALT,
+                    on_click=resetar,
+                    style=ft.ButtonStyle(color="#FFB4B4"),
+                ),
+            ],
+        ),
+    )
+
+ft.run(main)
 
 
 ```
@@ -545,10 +610,76 @@ Boas práticas:
 
 ```python
 
+import flet as ft
 
-# Fazer código com Professor
+def main(page: ft.Page):
+    # Configurações iniciais
+    page.title="Modo Claro/Escuro"
+    #Inicia no mode Claro
+    page.theme_mode = ft.ThemeMode.LIGHT 
+    # Alinha tudo ao centro
+    page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
 
+    # Função que redesenha toda a tela se o tema for trocado
+    def construir_tela():
+        # Limpa a tela antes de recriar o app
+        page.controls.clear()
 
+        # Troca para o modo escuro
+        escuro = page.theme_mode == ft.ThemeMode.DARK
+
+        # Define o ícone cores e texto de acordo com o tema atual
+        icone = ft.Icon(
+            ft.Icons.LIGHT_MODE if escuro else ft.Icons.DARK_MODE,
+            size=60,
+            color=ft.Colors.AMBER if escuro else ft.Colors.BLUE_200,
+        )
+        texto = ft.Text(
+            "Modo Escuro ativado" if escuro else "Modo Claro ativado",
+            size=20,
+            weight=ft.FontWeight.BOLD,
+            color=ft.Colors.WHITE if escuro else ft.Colors.BLACK,
+        )
+        botao = ft.ElevatedButton(
+            "Ativar Modo Claro" if escuro else "Ativar Modo Escuro",
+            on_click=alternar_tema,
+        )
+
+        # Cor de fundo da tela
+        page.bgcolor= ft.Colors.BLACK if escuro else ft.Colors.WHITE
+
+        # Adiciona os elementos centralizados
+        page.add(
+            ft.Column(
+                [ft.Container(height=60), icone, texto, botao],
+                alignment=ft.MainAxisAlignment.CENTER,
+                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                spacing=20,
+            )
+        )
+
+        page.update()
+
+    def alternar_tema(e):
+        # Forma moderna de alternar (Usando tenário)
+        page.theme_mode = (
+            ft.ThemeMode.DARK if page.theme_mode == ft.ThemeMode.LIGHT else ft.ThemeMode.LIGHT
+        )
+
+        # Forma tradicional
+        # if page.theme_mode == ft.ThemeMode.LIGHT:
+        #     page.theme_mode = ft.ThemeMode.DARK
+        # else:
+        #     page.theme_mode = ft.ThemeMode.LIGHT
+
+        # Usado toda vez que usuário clicar para reconstruir
+        construir_tela()
+
+    construir_tela() # Chama a tela pela primeira vez
+
+# Inicia o aplicativo
+ft.app(target=main)
+    
 
 ```
 
@@ -621,9 +752,82 @@ Uma tela de lista (tarefas, produtos, mensagens...) segue sempre o mesmo roteiro
 
 ```python
 
+import flet as ft
 
-# Fazer código com Professor
+def main(page: ft.Page):
+    # Título que aparece na barra da janela/aba
+    page.title = "Lista de compras"
 
+    # Cor de fundo da página inteira
+    page.bgcolor = "#0F2E1D"
+
+    # Centraliza os controles no eixo horizontal da página
+    page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
+
+    # Padding vertical de 60px (topo e base)
+    page.padding = ft.Padding(top=60, bottom=60, left=0, right=0)
+
+    # Local para guardar os itens da lista
+    itens = ["Leite", "Pão", "Café"]  
+
+    # Rolagem vertical (Se lista grande)
+    list_view = ft.ListView(expand=True, spacing=8, width=320)
+
+    # Campo de texto para adicionar novos itens (Na lista de tarefas)
+    campo = ft.TextField(
+        label="Novo item",
+        expand=True,
+        color="#ffffff",
+        label_style=ft.TextStyle(color="#8FD9B6"),
+        border_color="#3F8F6C",
+        focused_border_color="#5FE0A0",
+    )
+
+    def build_item(nome):
+        # Função que recebe nome e devolve 1 linha com a tarefa pronta
+        def remover(e):
+            itens.remove(nome)
+            atualizar_lista()
+        return ft.Row(
+            controls=[
+                ft.Text(nome, expand=True, color="#E5F5EC"),
+                ft.IconButton(ft.Icons.DELETE, on_click=remover, icon_color="#FF8585"),
+            ]
+        )
+
+    def atualizar_lista():
+        # Limpa e reconstrói a ListView.
+        list_view.controls.clear()
+        for nome in itens:
+            list_view.controls.append(build_item(nome))
+        page.update()
+
+    def adicionar(e):
+        # Função para efetivamente inserir uma nova tarefa
+        if campo.value:
+            itens.append(campo.value)
+            campo.value=""
+            atualizar_lista()
+
+    # Construção do Layout da tela
+    page.add(
+        ft.Row(
+            width=320,
+            # Campo para inserir uma nova tarefa + Botão de adicionar
+            controls=[
+                campo,
+                ft.ElevatedButton(
+                    "Adicionar", on_click=adicionar, bgcolor="#5FE0A0", color="#0F2E1D"
+                ),
+            ],
+        ),
+        # Exibe a lista de todas as tarefas
+        list_view
+    )
+    atualizar_lista() # Constroi a lista inicial (Ao abrir)
+
+# Roda a aplicação
+ft.run(main)
 
 
 ```
@@ -735,10 +939,57 @@ O padrão recomendado é sempre **reconstruir `page.views` a partir de `page.rou
 
 ```python
 
+import flet as ft
 
-# Fazer código com Professor
+def main(page: ft.Page):
+    # Título que aparece na barra da janela/aba
+    page.title = "Navegação"
 
+    def view_inicio():
+        return ft.View(
+            route="/",
+            appbar=ft.AppBar(title=ft.Text("Início")),
+            bgcolor="#221A3D",  # cor de fundo desta tela: roxo escuro
+            horizontal_alignment=ft.CrossAxisAlignment.CENTER,  # centraliza o conteúdo
+            padding=ft.Padding(top=60, bottom=60, left=0, right=0),  # padding vertical de 60px
+            controls=[
+                ft.Text("Tela inicial", color="#C9B6F2", size=18),
+                ft.ElevatedButton(
+                    "Ir para Sobre",
+                    on_click=lambda e: page.navigate("/sobre"),
+                    bgcolor="#9B7EDE",
+                    color="#221A3D",
+                ),
+            ],
+        )
 
+    def view_sobre():
+        return ft.View(
+            route="/sobre",
+            appbar=ft.AppBar(title=ft.Text("Sobre")),
+            bgcolor="#1A2E3D",  # cor de fundo desta tela: azul petróleo
+            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+            padding=ft.Padding(top=60, bottom=60, left=0, right=0),
+            controls=[ft.Text("Esta é a tela Sobre.", color="#9FD3E8")],
+        )
+
+    def route_change(e):
+        # Reconstrói a pilha de views a partir da rota atual
+        page.views.clear()
+        page.views.append(view_inicio())
+        if page.route == "/sobre":
+            page.views.append(view_sobre())
+        page.update()
+
+    def view_pop(e):
+        page.views.pop()
+        page.navigate(page.views[-1].route)
+
+    page.on_route_change = route_change
+    page.on_view_pop = view_pop
+    route_change(None)  # constrói a(s) view(s) da rota inicial
+
+ft.run(main)
 
 ```
 
